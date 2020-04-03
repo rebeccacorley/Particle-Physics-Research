@@ -1,0 +1,44 @@
+// Headers and Namespaces.
+#include "Pythia8/Pythia.h" // Include Pythia headers.
+
+using namespace std; //standard
+using namespace Pythia8; // Let Pythia8:: be implicit.
+
+
+int main() { // Begin main program.
+// Set up generation.
+
+    Pythia pythia; // Declare Pythia object
+
+    pythia.readString("Top:gg2ttbar = on"); // Switch on process.
+    pythia.readString("Beams:eCM = 8000."); // 8 TeV CM energy.
+    pythia.readString("Top:qqbar2ttbar = on");
+    pythia.readString("Next:numberShowEvent = 5"); // Number of events to create
+    
+    pythia.init(); // Initialize; incoming pp beams is default.
+    
+    // Generate event(s).
+    
+    int iTop = 0; //UNSURE ABOUT THIS LINE
+    
+    Hist pT("top transverse momentum", 100, 0., 200.);
+    Hist eta("top pseudorapidity", 100, -5., 5.); //I dont know the physics. This is to see the shape of the distributions. The last three arguments are the number of bins, lower and upper edge of histogram
+    
+   // pythia.next(); // Generate an(other) event. Fill event record.
+            for (int iEvent = 0; iEvent < 5; ++iEvent) {
+                pythia.next(); //Generate more than one event aka the event loop
+                for (int i = 0; i < pythia.event.size(); ++i) {
+                    cout << "i = " << i << ", id = "
+                    << pythia.event[i].id() << endl; // Access all particles in event record aka particle loop
+                    if (pythia.event[i].id() == 6) iTop = i; //I AM UNSURE ABOUT THIS LINE
+                
+                    pT.fill( pythia.event[iTop].pT() ); //Two lines to fill the histogram
+                    eta.fill( pythia.event[iTop].eta() );
+                    cout << pT << eta; // Writes out the histogram
+                }
+            }
+    
+    pythia.stat(); // Obtain stats on number of events generated of the different kinds
+    
+    return 0;
+} // End main program with error-free return.
